@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#166534" />
+  <title>فول وفلافل بوجي | نظام الحسابات</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="login.css" />
+  <link rel="stylesheet" href="orders.css" />
+  <link rel="stylesheet" href="professional.css" />
+  <link rel="stylesheet" href="mobile.css" />
+</head>
+<body>
+  <div id="loginScreen" class="login-screen">
+    <form id="loginForm" class="login-card">
+      <img class="login-logo" src="https://i.ibb.co/DfW45ZGN/Whats-App-Image-2026-07-12-at-10-46-05-AM.jpg" alt="شعار فول وفلافل بوجي">
+      <h1>فول وفلافل بوجي</h1>
+      <p>سجّل الدخول إلى نظام الحسابات</p>
+      <label>كلمة المرور<input id="passwordInput" type="password" inputmode="numeric" autocomplete="current-password" dir="ltr" required autofocus></label>
+      <p id="loginError" class="login-error" hidden>كلمة المرور غير صحيحة.</p>
+      <button class="primary" type="submit">دخول للنظام</button>
+      <small>تطوير el goharyX</small>
+    </form>
+  </div>
+  <aside class="sidebar">
+    <div class="brand"><img class="brand-logo" src="https://i.ibb.co/DfW45ZGN/Whats-App-Image-2026-07-12-at-10-46-05-AM.jpg" alt="شعار فول وفلافل بوجي"><div><b>فول وفلافل بوجي</b><small>نظام الحسابات المحلي</small></div></div>
+    <nav>
+      <button class="nav active" data-page="dashboard">▦ <span>الرئيسية</span></button>
+      <button class="nav" data-page="sales">▣ <span>المبيعات</span></button>
+      <button class="nav" data-page="expenses">▤ <span>المصروفات</span></button>
+      <button class="nav" data-page="reports">▥ <span>التقارير</span></button>
+      <button class="nav" data-page="settings">⚙ <span>الإعدادات والنسخ</span></button>
+    </nav>
+    <div class="local-note">● يعمل محليًا على جهازك<br><span>تطوير el goharyX</span></div>
+  </aside>
+
+  <main>
+    <header><div><h1 id="pageTitle">لوحة التحكم</h1><p id="today"></p><small id="syncStatus" class="sync-status">● جاري الاتصال بقاعدة البيانات…</small></div><button id="newSaleTop" class="primary">+ عملية بيع جديدة</button></header>
+
+    <section id="dashboard" class="page active">
+      <div class="stats">
+        <article class="stat green"><span>مبيعات اليوم</span><strong id="todaySales">0 ج.م</strong><small id="salesCount">0 فاتورة</small></article>
+        <article class="stat orange"><span>مصروفات اليوم</span><strong id="todayExpenses">0 ج.م</strong><small id="expenseCount">0 بند</small></article>
+        <article class="stat blue"><span>صافي اليوم</span><strong id="todayProfit">0 ج.م</strong><small>المبيعات − المصروفات</small></article>
+        <article class="stat purple"><span>رصيد الصندوق</span><strong id="cashBalance">0 ج.م</strong><small>كل العمليات المسجلة</small></article>
+      </div>
+      <div class="grid-two">
+        <section class="card"><div class="card-head"><h2>آخر المبيعات</h2><button class="text-btn" data-go="sales">عرض الكل</button></div><div id="recentSales" class="list"></div></section>
+        <section class="card"><div class="card-head"><h2>ملخص اليوم</h2></div><div id="daySummary" class="summary"></div></section>
+      </div>
+    </section>
+
+    <section id="sales" class="page">
+      <div class="section-head"><div><h2>المبيعات</h2><p>سجل فواتير ومبيعات المطعم.</p></div><button id="newSale" class="primary">+ إضافة عملية بيع</button></div>
+      <div class="filter-row"><input id="salesSearch" placeholder="ابحث بالتفاصيل أو طريقة الدفع" /><input id="salesDate" type="date" /></div>
+      <div class="table-card"><table><thead><tr><th>التاريخ والوقت</th><th>التفاصيل</th><th>طريقة الدفع</th><th>المبلغ</th><th></th></tr></thead><tbody id="salesTable"></tbody></table><div id="noSales" class="empty">لا توجد مبيعات مسجلة بعد.</div></div>
+    </section>
+
+    <section id="expenses" class="page">
+      <div class="section-head"><div><h2>المصروفات</h2><p>سجل التوريدات والمصاريف التشغيلية.</p></div><button id="newExpense" class="primary">+ إضافة مصروف</button></div>
+      <div class="filter-row"><input id="expensesSearch" placeholder="ابحث في المصروفات" /><input id="expensesDate" type="date" /></div>
+      <div class="table-card"><table><thead><tr><th>التاريخ والوقت</th><th>الفئة</th><th>البيان</th><th>المبلغ</th><th></th></tr></thead><tbody id="expensesTable"></tbody></table><div id="noExpenses" class="empty">لا توجد مصروفات مسجلة بعد.</div></div>
+    </section>
+
+    <section id="reports" class="page">
+      <div class="section-head"><div><h2>التقارير</h2><p>اختر الفترة لمعرفة أداء المطعم.</p></div><button id="printReport" class="secondary">طباعة التقرير</button></div>
+      <div class="report-filter"><label>من <input id="reportFrom" type="date"></label><label>إلى <input id="reportTo" type="date"></label><button id="runReport" class="primary">تحديث</button></div>
+      <div class="stats compact"><article class="stat green"><span>إجمالي المبيعات</span><strong id="reportSales">0 ج.م</strong></article><article class="stat orange"><span>إجمالي المصروفات</span><strong id="reportExpenses">0 ج.م</strong></article><article class="stat blue"><span>صافي الربح</span><strong id="reportProfit">0 ج.م</strong></article></div>
+      <section class="card"><div class="card-head"><h2>المصروفات حسب الفئة</h2></div><div id="categoryReport" class="category-report"></div></section>
+    </section>
+
+    <section id="settings" class="page">
+      <div class="section-head"><div><h2>الإعدادات والنسخ الاحتياطي</h2><p>بياناتك محفوظة على هذا الجهاز فقط.</p></div></div>
+      <section class="card menu-card"><div class="card-head"><h2>أصناف المنيو</h2><span>أضف اسم الصنف فقط؛ السعر يُكتب في الفاتورة.</span></div><form id="menuForm" class="menu-form"><input name="name" required maxlength="60" placeholder="اسم الصنف: ساندوتش فول"><button class="primary">+ إضافة صنف</button></form><div id="menuList" class="menu-list"></div></section>
+      <div class="grid-two"><section class="card setting-card"><h2>نسخة احتياطية</h2><p>احفظ نسخة من المبيعات والمصروفات لنقلها أو الاحتفاظ بها.</p><button id="exportData" class="primary">تصدير البيانات</button></section><section class="card setting-card"><h2>استعادة نسخة</h2><p>استورد ملف نسخة احتياطية سبق تصديره من النظام.</p><label class="secondary file-label">اختيار ملف <input id="importData" type="file" accept="application/json"></label></section></div>
+      <section class="card danger"><h2>حذف كل البيانات</h2><p>هذا الإجراء لا يمكن التراجع عنه. احفظ نسخة احتياطية أولًا.</p><button id="clearData" class="danger-btn">حذف جميع البيانات</button></section>
+    </section>
+  </main>
+  <nav class="mobile-nav" aria-label="التنقل الرئيسي">
+    <button class="nav active" data-page="dashboard"><span>▦</span><small>الرئيسية</small></button>
+    <button class="nav" data-page="sales"><span>▣</span><small>المبيعات</small></button>
+    <button class="nav" data-page="expenses"><span>▤</span><small>المصروفات</small></button>
+    <button class="nav" data-page="reports"><span>▥</span><small>التقارير</small></button>
+    <button class="nav" data-page="settings"><span>⚙</span><small>الإعدادات</small></button>
+  </nav>
+
+  <dialog id="saleModal"><form method="dialog" id="saleForm"><div class="modal-head"><h2>طلب جديد</h2><button type="button" class="close" data-close-dialog>×</button></div><div class="order-head"><b>الأصناف والسعر</b><button id="addOrderItem" type="button" class="text-btn">+ إضافة صنف</button></div><div id="orderItems" class="order-items"></div><div class="order-total"><span>إجمالي الطلب</span><strong id="orderTotal">0 ج.م</strong></div><label>طريقة الدفع<select name="payment"><option>نقدي</option><option>فودافون كاش</option><option>بطاقة</option><option>آجل</option></select></label><div class="modal-actions"><button type="button" class="secondary" data-close-dialog>إلغاء</button><button type="submit" class="primary" value="default">حفظ الطلب</button></div></form></dialog>
+  <dialog id="expenseModal"><form method="dialog" id="expenseForm"><div class="modal-head"><h2>مصروف جديد</h2><button type="button" class="close" data-close-dialog>×</button></div><label>المبلغ (ج.م)<input name="amount" type="number" min="0.01" step="0.01" required autofocus></label><label>فئة المصروف <input name="category" maxlength="60" required placeholder="مثال: خامات وتوريدات أو رواتب"></label><label>البيان <input name="note" maxlength="120" required placeholder="مثال: شراء فول وزيت"></label><div class="modal-actions"><button type="button" class="secondary" data-close-dialog>إلغاء</button><button type="submit" class="primary" value="default">حفظ المصروف</button></div></form></dialog>
+  <script>
+    (() => {
+      const form = document.getElementById('loginForm');
+      const input = document.getElementById('passwordInput');
+      const error = document.getElementById('loginError');
+      if (sessionStorage.getItem('boogy_authenticated') === '1') document.getElementById('loginScreen').hidden = true;
+      form.addEventListener('submit', event => {
+        event.preventDefault();
+        const password = [...input.value.trim()].map(char => {
+          const code = char.charCodeAt(0);
+          return code >= 0x0660 && code <= 0x0669 ? String(code - 0x0660) : char;
+        }).join('').replace(/[\s-]/g, '');
+        if (password === '01102052489') {
+          sessionStorage.setItem('boogy_authenticated', '1');
+          document.getElementById('loginScreen').hidden = true;
+        } else {
+          error.hidden = false;
+          input.select();
+        }
+      });
+    })();
+  </script>
+  <script src="app.js"></script>
+</body>
+</html>
