@@ -1,0 +1,67 @@
+const firebaseConfig={apiKey:'AIzaSyDQuZ1EX2xcBPgS4cBXbIod291IzFNlZwY',authDomain:'folyt-feeb9.firebaseapp.com',projectId:'folyt-feeb9',databaseURL:'https://folyt-feeb9-default-rtdb.firebaseio.com',storageBucket:'folyt-feeb9.firebasestorage.app',messagingSenderId:'1066534805781',appId:'1:1066534805781:web:71b96b9d71143b5bd4091c',measurementId:'G-Y5C6778KJW'};
+let cloudRef=null, cloudSet=null, syncStarted=false;
+const KEY='boogy_restaurant_accounts_v1';
+const PENDING_SYNC_KEY='boogy_restaurant_pending_sync';
+const SYSTEM_PASSWORD='01102052489';
+let data=JSON.parse(localStorage.getItem(KEY)||'{"sales":[],"expenses":[]}');
+const DEFAULT_MENU=[{id:'foul-sandwich',name:'ساندوتش فول'},{id:'falafel-sandwich',name:'ساندوتش طعمية'},{id:'foul-plate',name:'طبق فول'},{id:'falafel-meal',name:'وجبة طعمية'}];
+if(!Array.isArray(data.menu))data.menu=[...DEFAULT_MENU];
+const $=s=>document.querySelector(s), money=n=>`${Number(n||0).toLocaleString('ar-EG',{maximumFractionDigits:2})} ج.م`;
+const normalizeDigits=value=>[...value.trim()].map(char=>{const code=char.charCodeAt(0);return code>=0x0660&&code<=0x0669?String(code-0x0660):char}).join('').replace(/\s|-/g,'');
+$('#loginForm').addEventListener('submit',event=>{event.preventDefault();if(normalizeDigits($('#passwordInput').value)===SYSTEM_PASSWORD){$('#loginScreen').hidden=true;sessionStorage.setItem('boogy_authenticated','1')}else{$('#loginError').hidden=false;$('#passwordInput').select()}});
+if(sessionStorage.getItem('boogy_authenticated')==='1')$('#loginScreen').hidden=true;
+const day=d=>new Date(d).toLocaleDateString('ar-EG',{year:'numeric',month:'short',day:'numeric'});
+const time=d=>new Date(d).toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'});
+const todayKey=()=>new Date().toISOString().slice(0,10);
+function setSyncStatus(message,type=''){const status=$('#syncStatus');status.textContent=`● ${message}`;status.className=`sync-status ${type}`}
+function markPendingSync(){localStorage.setItem(PENDING_SYNC_KEY,'1')}
+function clearPendingSync(){localStorage.removeItem(PENDING_SYNC_KEY)}
+function save(){localStorage.setItem(KEY,JSON.stringify(data));markPendingSync();render();if(!cloudSet){setSyncStatus('البيانات محفوظة محليًا — ستُرسل عند عودة الإنترنت','error');return}setSyncStatus('جاري حفظ البيانات في قاعدة البيانات…');cloudSet(cloudRef,data).then(()=>{clearPendingSync();setSyncStatus('تمت المزامنة مع قاعدة البيانات','synced')}).catch(error=>{console.error(error);setSyncStatus('تعذر الحفظ في السحابة — ستُرسل عند عودة الإنترنت','error')})}
+function sum(a){return a.reduce((x,v)=>x+Number(v.amount),0)}
+function escapeHTML(value){return String(value).replace(/[&<>'"]/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]))}
+function renderMenu(){$('#menuList').innerHTML=data.menu.length?data.menu.map(item=>`<div class="menu-item"><span>${escapeHTML(item.name)}</span><button class="delete" data-menu-id="${item.id}">حذف</button></div>`).join(''):'<div class="empty">لا توجد أصناف. أضف صنفًا من الأعلى.</div>'}
+function render(){
+ const salesToday=data.sales.filter(x=>x.date.slice(0,10)===todayKey()), expToday=data.expenses.filter(x=>x.date.slice(0,10)===todayKey());
+ $('#todaySales').textContent=money(sum(salesToday));$('#salesCount').textContent=`${salesToday.length} فاتورة`;
+ $('#todayExpenses').textContent=money(sum(expToday));$('#expenseCount').textContent=`${expToday.length} بند`;
+ $('#todayProfit').textContent=money(sum(salesToday)-sum(expToday));$('#cashBalance').textContent=money(sum(data.sales)-sum(data.expenses));
+ $('#recentSales').innerHTML=data.sales.slice(0,5).map(x=>`<div class="list-row"><div><b>${x.note||'عملية بيع'}</b><small>${day(x.date)} · ${time(x.date)} · ${x.payment}</small></div><span class="amount">${money(x.amount)}</span></div>`).join('')||'<div class="empty">ابدأ بتسجيل أول عملية بيع.</div>';
+ $('#daySummary').innerHTML=`<div><span>عدد الفواتير</span><b>${salesToday.length}</b></div><div><span>متوسط الفاتورة</span><b>${money(salesToday.length?sum(salesToday)/salesToday.length:0)}</b></div><div><span>صافي الربح اليوم</span><b class="amount">${money(sum(salesToday)-sum(expToday))}</b></div>`;
+ renderTables();renderReport();renderMenu();
+}
+function renderTables(){
+ const sf=$('#salesSearch').value.toLowerCase(), sd=$('#salesDate').value;
+ const sales=data.sales.filter(x=>(!sd||x.date.slice(0,10)===sd)&&(`${x.note} ${x.payment}`).toLowerCase().includes(sf));
+ $('#salesTable').innerHTML=sales.map(x=>`<tr><td>${day(x.date)}<br><small>${time(x.date)}</small></td><td>${x.note||'—'}</td><td>${x.payment}</td><td class="amount">${money(x.amount)}</td><td><button class="delete" data-type="sales" data-id="${x.id}">حذف</button></td></tr>`).join(''); $('#noSales').hidden=!!sales.length;
+ const ef=$('#expensesSearch').value.toLowerCase(), ed=$('#expensesDate').value;
+ const ex=data.expenses.filter(x=>(!ed||x.date.slice(0,10)===ed)&&(`${x.note} ${x.category}`).toLowerCase().includes(ef));
+ $('#expensesTable').innerHTML=ex.map(x=>`<tr><td>${day(x.date)}<br><small>${time(x.date)}</small></td><td>${x.category}</td><td>${x.note}</td><td class="amount">${money(x.amount)}</td><td><button class="delete" data-type="expenses" data-id="${x.id}">حذف</button></td></tr>`).join(''); $('#noExpenses').hidden=!!ex.length;
+}
+function renderReport(){const f=$('#reportFrom').value, t=$('#reportTo').value;const inRange=x=>(!f||x.date.slice(0,10)>=f)&&(!t||x.date.slice(0,10)<=t);const s=data.sales.filter(inRange),e=data.expenses.filter(inRange);$('#reportSales').textContent=money(sum(s));$('#reportExpenses').textContent=money(sum(e));$('#reportProfit').textContent=money(sum(s)-sum(e));const cats={};e.forEach(x=>cats[x.category]=(cats[x.category]||0)+Number(x.amount));const max=Math.max(...Object.values(cats),1);$('#categoryReport').innerHTML=Object.entries(cats).map(([k,v])=>`<div class="category-row"><span>${k}</span><div class="bar"><i style="width:${v/max*100}%"></i></div><b>${money(v)}</b></div>`).join('')||'<div class="empty">لا توجد مصروفات في الفترة المختارة.</div>'}
+document.querySelectorAll('.nav').forEach(b=>b.onclick=()=>{document.querySelectorAll('.nav,.page').forEach(e=>e.classList.remove('active'));b.classList.add('active');$('#'+b.dataset.page).classList.add('active');$('#pageTitle').textContent=b.innerText.trim();});
+document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>document.querySelector(`.nav[data-page="${b.dataset.go}"]`).click());
+function menuOptions(selected=''){return data.menu.map(item=>`<option value="${item.id}" ${item.id===selected?'selected':''}>${escapeHTML(item.name)}</option>`).join('')}
+function addOrderRow(id=''){if(!data.menu.length)return;$('#orderItems').insertAdjacentHTML('beforeend',`<div class="order-row"><select class="order-product">${menuOptions(id)}</select><input class="order-price" type="number" min="0" step="0.01" required placeholder="السعر ج.م"><button type="button" class="remove-item" title="حذف الصنف">×</button></div>`);updateOrderTotal()}
+function updateOrderTotal(){let total=0;document.querySelectorAll('.order-row').forEach(row=>{total+=Math.max(0,Number(row.querySelector('.order-price').value)||0)});$('#orderTotal').textContent=money(total);return total}
+function openSale(){$('#saleForm').reset();$('#orderItems').innerHTML='';if(data.menu.length)addOrderRow();else $('#orderItems').innerHTML='<div class="empty">أضف أصناف المنيو أولًا من الإعدادات.</div>';$('#saleModal').showModal()} function openExpense(){$('#expenseForm').reset();$('#expenseModal').showModal()}
+$('#newSale').onclick=openSale;$('#newSaleTop').onclick=openSale;$('#newExpense').onclick=openExpense;
+document.addEventListener('click',event=>{const button=event.target.closest('[data-close-dialog]');if(button){button.closest('dialog').close()}});
+$('#addOrderItem').onclick=()=>{if(!data.menu.length){alert('أضف أصناف المنيو من الإعدادات أولًا.');return}addOrderRow()};
+$('#orderItems').addEventListener('input',updateOrderTotal);$('#orderItems').addEventListener('change',updateOrderTotal);$('#orderItems').addEventListener('click',event=>{const button=event.target.closest('.remove-item');if(button){button.closest('.order-row').remove();updateOrderTotal()}});
+$('#saleForm').addEventListener('submit',e=>{if(e.submitter?.value==='cancel')return;e.preventDefault();const rows=[...document.querySelectorAll('.order-row')];if(!rows.length){alert('أضف صنفًا واحدًا على الأقل للطلب.');return}const items=rows.map(row=>{const product=data.menu.find(x=>x.id===row.querySelector('.order-product').value),price=Number(row.querySelector('.order-price').value);return product&&price>0?{id:product.id,name:product.name,price}:null}).filter(Boolean);if(items.length!==rows.length){alert('اكتب سعرًا صحيحًا لكل صنف.');return}const f=new FormData(e.target),amount=items.reduce((total,item)=>total+item.price,0),note=items.map(item=>item.name).join(' + ');data.sales.unshift({id:crypto.randomUUID(),amount,payment:f.get('payment'),note,items,date:new Date().toISOString()});$('#saleModal').close();save()});
+$('#expenseForm').addEventListener('submit',e=>{if(e.submitter?.value==='cancel')return;e.preventDefault();const f=new FormData(e.target);data.expenses.unshift({id:crypto.randomUUID(),amount:+f.get('amount'),category:f.get('category'),note:f.get('note'),date:new Date().toISOString()});$('#expenseModal').close();save()});
+$('#menuForm').addEventListener('submit',event=>{event.preventDefault();const form=new FormData(event.target),name=form.get('name').trim();if(!name)return;data.menu.push({id:crypto.randomUUID(),name});event.target.reset();save()});
+$('#menuList').addEventListener('click',event=>{const button=event.target.closest('[data-menu-id]');if(button&&confirm('حذف هذا الصنف من المنيو؟')){data.menu=data.menu.filter(item=>item.id!==button.dataset.menuId);save()}});
+['salesSearch','salesDate','expensesSearch','expensesDate'].forEach(id=>$('#'+id).addEventListener('input',renderTables));$('#runReport').onclick=renderReport;
+document.addEventListener('click',e=>{const b=e.target.closest('.delete');if(b&&confirm('حذف هذا السجل؟')){data[b.dataset.type]=data[b.dataset.type].filter(x=>x.id!==b.dataset.id);save()}});
+$('#exportData').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));a.download=`boogy-backup-${todayKey()}.json`;a.click();URL.revokeObjectURL(a.href)};
+$('#importData').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const x=JSON.parse(r.result);if(!Array.isArray(x.sales)||!Array.isArray(x.expenses))throw 0;if(confirm('سيتم استبدال البيانات الحالية بالنسخة المستوردة. متابعة؟')){data=x;save();alert('تمت الاستعادة بنجاح.')}}catch{alert('ملف النسخة الاحتياطية غير صالح.')}};r.readAsText(f)};
+$('#clearData').onclick=()=>{if(confirm('هل أنت متأكد من حذف جميع المبيعات والمصروفات؟')){data={sales:[],expenses:[],menu:data.menu||[]};save()}};
+$('#printReport').onclick=()=>window.print();$('#today').textContent=`${new Date().toLocaleDateString('ar-EG',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}`;
+const first=new Date();first.setDate(1);$('#reportFrom').value=first.toISOString().slice(0,10);$('#reportTo').value=todayKey();render();
+function mergeById(local=[],cloud=[]){const result=new Map();cloud.forEach(item=>result.set(item.id,item));local.forEach(item=>result.set(item.id,item));return [...result.values()]}
+function mergeCloudData(cloudData){return {sales:mergeById(data.sales,cloudData.sales),expenses:mergeById(data.expenses,cloudData.expenses),menu:mergeById(data.menu||[],cloudData.menu||[])}}
+async function connectFirebase(){if(syncStarted||!navigator.onLine)return;try{syncStarted=true;const {initializeApp}=await import('https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js');const {getDatabase,ref,onValue,set}=await import('https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js');const database=getDatabase(initializeApp(firebaseConfig));cloudRef=ref(database,'boogyRestaurant/accounts');cloudSet=set;onValue(cloudRef,snapshot=>{const cloudData=snapshot.val();if(cloudData&&Array.isArray(cloudData.sales)&&Array.isArray(cloudData.expenses)){if(localStorage.getItem(PENDING_SYNC_KEY)){data=mergeCloudData(cloudData);localStorage.setItem(KEY,JSON.stringify(data));set(cloudRef,data).then(()=>{clearPendingSync();setSyncStatus('تم إرسال البيانات المحفوظة إلى Firebase','synced')}).catch(()=>setSyncStatus('تعذر الإرسال — ستتم المحاولة عند عودة الإنترنت','error'))}else{data=cloudData;if(!Array.isArray(data.menu))data.menu=[...DEFAULT_MENU];localStorage.setItem(KEY,JSON.stringify(data));setSyncStatus('تمت المزامنة مع قاعدة البيانات','synced')}render()}else if(!cloudData){set(cloudRef,data).then(()=>{clearPendingSync();setSyncStatus('تم إنشاء النسخة السحابية','synced')}).catch(()=>setSyncStatus('لا يمكن إنشاء النسخة السحابية — البيانات محلية','error'))}},()=>{syncStarted=false;cloudRef=null;cloudSet=null;setSyncStatus('تعذر الاتصال بقاعدة البيانات — وضع محلي','error')})}catch(error){console.error(error);syncStarted=false;cloudRef=null;cloudSet=null;setSyncStatus('تعذر تحميل خدمة المزامنة — البيانات محلية','error')}}
+window.addEventListener('online',()=>{setSyncStatus('تم الاتصال بالإنترنت — جاري إرسال البيانات…');connectFirebase()});
+window.addEventListener('offline',()=>{cloudRef=null;cloudSet=null;syncStarted=false;setSyncStatus('لا يوجد إنترنت — البيانات محفوظة محليًا','error')});
+connectFirebase();
