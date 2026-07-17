@@ -1,1 +1,71 @@
-.menu-card{margin-bottom:18px}.card-head span{color:#718076;font-size:12px}.menu-form{display:grid;grid-template-columns:1fr auto;gap:10px;margin:16px 0}.menu-list{display:grid;gap:7px}.menu-item{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:#f6f9f6;border-radius:8px}.order-head{display:flex;justify-content:space-between;align-items:center}.order-items{display:grid;gap:8px}.order-row{display:grid;grid-template-columns:1fr 110px 32px;gap:7px;align-items:center}.order-row input{min-width:0}.remove-item{border:0;background:#fff0f0;color:#b83939;border-radius:7px;height:37px;cursor:pointer}.order-total{display:flex;justify-content:space-between;align-items:center;background:#eef7f0;padding:12px;border-radius:9px;color:#1c623c}.order-total strong{font-size:18px}@media(max-width:560px){.menu-form{grid-template-columns:1fr}.order-row{grid-template-columns:1fr 82px 32px}.card-head{align-items:flex-start}.card-head span{max-width:175px}.order-row select{font-size:12px}}
+﻿.menu-card {
+  margin-bottom: 22px;
+}
+.card-head span {
+  color: #5e5e5e;
+  font-size: 13px;
+}
+.menu-form {
+  display: grid;
+  gap: 14px;
+  margin: 20px 0;
+}
+.menu-list {
+  display: grid;
+  gap: 10px;
+}
+.menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+.order-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.order-items {
+  display: grid;
+  gap: 12px;
+}
+.order-row {
+  display: grid;
+  grid-template-columns: 1fr 118px 36px;
+  gap: 10px;
+  align-items: center;
+}
+.order-row input {
+  min-width: 0;
+}
+.remove-item {
+  border: 0;
+  background: #f2f2f2;
+  color: #000000;
+  border-radius: 12px;
+  height: 40px;
+  cursor: pointer;
+}
+.order-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #ffffff;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: #000000;
+}
+.order-total strong {
+  font-size: 18px;
+}
+@media (max-width: 560px) {
+  .menu-form { grid-template-columns: 1fr; }
+  .order-row { grid-template-columns: 1fr 92px 36px; }
+  .card-head { align-items: flex-start; }
+  .order-row select { font-size: 13px; }
+}

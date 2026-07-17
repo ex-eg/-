@@ -1,1 +1,61 @@
-.brand-logo{width:47px;height:47px;border-radius:12px;object-fit:cover;background:#f4b942}.local-note span{display:block;margin-top:6px;font-size:10px;color:#e6c45d}.login-screen{position:fixed;z-index:20;inset:0;background:linear-gradient(135deg,#123d29,#0c291c);display:grid;place-items:center;padding:20px}.login-screen[hidden]{display:none}.login-card{width:min(390px,100%);background:#fff;border-radius:20px;padding:30px;box-shadow:0 24px 70px #0007;text-align:center;display:grid;gap:15px}.login-logo{width:90px;height:90px;border-radius:18px;object-fit:cover;margin:auto;box-shadow:0 5px 16px #143d2a44}.login-card h1{font-size:22px}.login-card p{color:#68736b;margin:0}.login-card label{text-align:right}.login-card input{direction:ltr;text-align:left}.login-card .primary{width:100%;padding:12px}.login-card small{color:#778078}.login-error{color:#bd3434!important;font-weight:bold;text-align:right}
+﻿.login-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  background: radial-gradient(circle at 80% 10%, rgba(0, 0, 0, 0.12), transparent 30%),
+    linear-gradient(135deg, #111111, #1f1f1f);
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+.login-screen[hidden] {
+  display: none;
+}
+.login-card {
+  width: min(420px, 100%);
+  background: rgba(255, 255, 255, 0.98);
+  border-radius: 28px;
+  padding: 34px 32px;
+  box-shadow: 0 32px 90px rgba(0, 0, 0, 0.28);
+  text-align: center;
+  display: grid;
+  gap: 18px;
+}
+.login-logo {
+  width: 92px;
+  height: 92px;
+  border-radius: 22px;
+  object-fit: cover;
+  margin: auto;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.26);
+}
+.login-card h1 {
+  font-size: 24px;
+}
+.login-card p {
+  color: #4f4f4f;
+  margin: 0;
+}
+.login-card label {
+  text-align: right;
+}
+.login-card input {
+  direction: ltr;
+  text-align: left;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+}
+.login-card .primary {
+  width: 100%;
+  padding: 14px 0;
+  border-radius: 16px;
+  background: #000000;
+  color: #ffffff;
+}
+.login-card small {
+  color: #6a6a6a;
+}
+.login-error {
+  color: #000000 !important;
+  font-weight: 800;
+  text-align: right;
+}
