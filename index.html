@@ -29,6 +29,8 @@
       <button class="nav active" data-page="dashboard">▦ <span>الرئيسية</span></button>
       <button class="nav" data-page="sales">▣ <span>المبيعات</span></button>
       <button class="nav" data-page="expenses">▤ <span>المصروفات</span></button>
+      <button class="nav" data-page="attendance">◫ <span>الحضور والانصراف</span></button>
+      <button class="nav" data-page="resources">◧ <span>إدارة الموارد</span></button>
       <button class="nav" data-page="reports">▥ <span>التقارير</span></button>
       <button class="nav" data-page="settings">⚙ <span>الإعدادات والنسخ</span></button>
     </nav>
@@ -63,6 +65,22 @@
       <div class="table-card"><table><thead><tr><th>التاريخ والوقت</th><th>الفئة</th><th>البيان</th><th>المبلغ</th><th></th></tr></thead><tbody id="expensesTable"></tbody></table><div id="noExpenses" class="empty">لا توجد مصروفات مسجلة بعد.</div></div>
     </section>
 
+    <section id="attendance" class="page">
+      <div class="section-head"><div><h2>الحضور والانصراف</h2><p>إدارة الموظفين وسجل الحضور والغياب.</p></div></div>
+      <div class="grid-two">
+        <section class="card"><div class="card-head"><h2>الموظفون</h2></div><form id="employeeForm" class="menu-form"><input name="name" required maxlength="60" placeholder="اسم الموظف"><button class="primary">+ إضافة موظف</button></form><div id="employeeList" class="menu-list"></div></section>
+        <section class="card"><div class="card-head"><h2>تسجيل الحضور</h2></div><form id="attendanceForm" class="menu-form"><input id="attendanceDate" name="date" type="date" required><select id="attendanceEmployee" name="employeeId"></select><select name="status"><option value="حاضر">حاضر</option><option value="غائب">غائب</option><option value="إجازة">إجازة</option></select><input name="note" maxlength="80" placeholder="ملاحظات (اختياري)"><button class="primary">+ حفظ السجل</button></form><div id="attendanceList" class="list"></div></section>
+      </div>
+    </section>
+
+    <section id="resources" class="page">
+      <div class="section-head"><div><h2>إدارة الموارد</h2><p>تابع المخزون والحد الأدنى لكل مورد بشكل احترافي.</p></div></div>
+      <div class="grid-two">
+        <section class="card"><div class="card-head"><h2>إضافة مورد جديد</h2></div><form id="resourceForm" class="menu-form"><input name="name" required maxlength="60" placeholder="اسم المورد: زيت أو فول"><input name="unit" required maxlength="20" placeholder="الوحدة: لتر / كجم"><input name="stock" type="number" min="0" step="0.01" value="0" placeholder="الرصيد الحالي"><input name="minStock" type="number" min="0" step="0.01" value="0" placeholder="الحد الأدنى"><input name="cost" type="number" min="0" step="0.01" value="0" placeholder="سعر الوحدة"><input name="note" maxlength="80" placeholder="ملاحظات (اختياري)"><button class="primary">+ إضافة مورد</button></form></section>
+        <section class="card"><div class="card-head"><h2>تحديث المخزون</h2></div><form id="resourceStockForm" class="menu-form"><select id="resourceSelect" name="resourceId"></select><input name="amount" type="number" min="0.01" step="0.01" required placeholder="الكمية"><select name="type"><option value="add">إضافة</option><option value="use">استهلاك</option></select><button class="primary">تحديث المخزون</button></form><div id="resourceList" class="resource-list"></div></section>
+      </div>
+    </section>
+
     <section id="reports" class="page">
       <div class="section-head"><div><h2>التقارير</h2><p>اختر الفترة لمعرفة أداء المطعم.</p></div><button id="printReport" class="secondary">طباعة التقرير</button></div>
       <div class="report-filter"><label>من <input id="reportFrom" type="date"></label><label>إلى <input id="reportTo" type="date"></label><button id="runReport" class="primary">تحديث</button></div>
@@ -78,14 +96,16 @@
     </section>
   </main>
   <nav class="mobile-nav" aria-label="التنقل الرئيسي">
-    <button class="nav active" data-page="dashboard"><span>▦</span><small>الرئيسية</small></button>
+   
     <button class="nav" data-page="sales"><span>▣</span><small>المبيعات</small></button>
     <button class="nav" data-page="expenses"><span>▤</span><small>المصروفات</small></button>
+    <button class="nav" data-page="attendance"><span>◫</span><small>الحضور</small></button>
+    <button class="nav" data-page="resources"><span>◧</span><small>الموارد</small></button>
     <button class="nav" data-page="reports"><span>▥</span><small>التقارير</small></button>
     <button class="nav" data-page="settings"><span>⚙</span><small>الإعدادات</small></button>
   </nav>
 
-  <dialog id="saleModal"><form method="dialog" id="saleForm"><div class="modal-head"><h2>طلب جديد</h2><button type="button" class="close" data-close-dialog>×</button></div><div class="order-head"><b>الأصناف والسعر</b><button id="addOrderItem" type="button" class="text-btn">+ إضافة صنف</button></div><div id="orderItems" class="order-items"></div><div class="order-total"><span>إجمالي الطلب</span><strong id="orderTotal">0 ج.م</strong></div><label>طريقة الدفع<select name="payment"><option>نقدي</option><option>فودافون كاش</option><option>بطاقة</option><option>آجل</option></select></label><div class="modal-actions"><button type="button" class="secondary" data-close-dialog>إلغاء</button><button type="submit" class="primary" value="default">حفظ الطلب</button></div></form></dialog>
+  <dialog id="saleModal"><form method="dialog" id="saleForm"><div class="modal-head"><h2>طلب جديد</h2><button type="button" class="close" data-close-dialog>×</button></div><div class="order-head"><b>الأصناف والسعر</b><button id="addOrderItem" type="button" class="text-btn">+ إضافة صنف</button></div><div id="orderItems" class="order-items"></div><div class="order-total"><span>إجمالي الطلب</span><strong id="orderTotal">0 ج.م</strong></div><label>طريقة الدفع<select name="payment"><option>نقدي</option><option>فودافون كاش</option><option>بطاقة</option><option>آجل</option></select></label><div class="modal-actions"><button type="button" id="printDraftInvoice" class="secondary">طباعة الفاتورة</button><button type="button" class="secondary" data-close-dialog>إلغاء</button><button type="submit" class="primary" value="default">حفظ الطلب</button></div></form></dialog>
   <dialog id="expenseModal"><form method="dialog" id="expenseForm"><div class="modal-head"><h2>مصروف جديد</h2><button type="button" class="close" data-close-dialog>×</button></div><label>المبلغ (ج.م)<input name="amount" type="number" min="0.01" step="0.01" required autofocus></label><label>فئة المصروف <input name="category" maxlength="60" required placeholder="مثال: خامات وتوريدات أو رواتب"></label><label>البيان <input name="note" maxlength="120" required placeholder="مثال: شراء فول وزيت"></label><div class="modal-actions"><button type="button" class="secondary" data-close-dialog>إلغاء</button><button type="submit" class="primary" value="default">حفظ المصروف</button></div></form></dialog>
   <script>
     (() => {
